@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from .model_spec import ModelSpec
 from .smoother import SmootherResult
 from .ukf import UKFResult
 
@@ -70,14 +69,42 @@ def outlier_quarters(residuals: pd.DataFrame, obs_names: list[str], top_n: int =
 
 
 def stability_report(result: UKFResult, smoother: SmootherResult) -> dict[str, object]:
-    finite = bool(np.isfinite(result.filtered_means).all() and np.isfinite(smoother.smoothed_means).all())
+    filtered_finite = bool(np.isfinite(result.filtered_means).all())
+    smoothed_finite = bool(np.isfinite(smoother.smoothed_means).all())
+    cov_finite = bool(np.isfinite(result.filtered_covariances).all() and np.isfinite(smoother.smoothed_covariances).all())
+
+    nis_values = result.nis[np.isfinite(result.nis)]
+    max_nis = float(np.max(nis_values)) if len(nis_values) else np.nan
+    mean_nis = float(np.mean(nis_values)) if len(nis_values) else np.nan
+
+    smoother_mirrors = bool(smoother.metadata.get("mirrors_filtered_states", False))
+    psd_total = int(result.psd_repairs.get("total", 0)) + int(smoother.metadata.get("psd_repairs", 0))
+
+    warnings = []
+    if smoother_mirrors and len(result.periods) > 1:
+        warnings.append("Smoother output mirrors filtered states on a multi-period run.")
+    if psd_total > 0:
+        warnings.append(f"PSD repairs occurred: total={psd_total}")
+    if np.isfinite(max_nis) and max_nis > 1.0e4:
+        warnings.append(f"Very large NIS detected: max_nis={max_nis}")
+
+    status = "pass" if (filtered_finite and smoothed_finite and cov_finite and not smoother_mirrors) else "fail"
+    if status == "pass" and warnings:
+        status = "warn"
+
     return {
-        "status": "pass" if finite else "fail",
-        "filtered_finite": bool(np.isfinite(result.filtered_means).all()),
-        "smoothed_finite": bool(np.isfinite(smoother.smoothed_means).all()),
+        "status": status,
+        "filtered_finite": filtered_finite,
+        "smoothed_finite": smoothed_finite,
+        "covariance_finite": cov_finite,
         "log_likelihood": result.log_likelihood,
-        "psd_repairs": result.psd_repairs,
+        "nis_count": int(len(nis_values)),
+        "nis_mean": mean_nis,
+        "nis_max": max_nis,
+        "psd_repairs_filter": result.psd_repairs,
+        "psd_repairs_smoother": int(smoother.metadata.get("psd_repairs", 0)),
         "smoother_metadata": smoother.metadata,
+        "warnings": warnings,
     }
 
 
@@ -89,6 +116,7 @@ def nis_summary(result: UKFResult) -> pd.DataFrame:
                 "count": int(len(values)),
                 "mean": float(np.mean(values)) if len(values) else np.nan,
                 "max": float(np.max(values)) if len(values) else np.nan,
+                "p95": float(np.percentile(values, 95)) if len(values) else np.nan,
             }
         ]
     )
