@@ -99,6 +99,15 @@ notebooks/                Clean reproduction notebook
 notebooks/legacy/         Preserved original research notebook
 ```
 
+## Implementation Scope
+
+The repository now contains both:
+
+1. a preserved legacy notebook under `notebooks/legacy/`, and
+2. a modular Python package under `src/dlg_ukf/`.
+
+The modular package is cleaner, testable, and suitable for smoke runs and software review. It should not yet be represented as a numerically identical port of the full legacy notebook. A future parity pass should compare modular outputs against the legacy notebook before using the modular package as the sole authoritative research pipeline.
+
 ## Data Note
 
 The repository preserves the processed canonical panel and sample panel. Raw/private/intermediate data are intentionally excluded. The data dictionary is scaffolded and uses `TODO_VERIFY` for unknown source, unit, description, and transformation metadata rather than fabricating provenance.
@@ -114,4 +123,3 @@ See `CITATION.cff`.
 ## License
 
 Code is released under the MIT License. Paper text, figures, and data-source materials may be subject to separate source or institutional restrictions.
-
