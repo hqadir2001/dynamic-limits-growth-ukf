@@ -41,3 +41,15 @@ python scripts/run_pipeline.py --config configs/baseline.yaml
 
 Each run writes `run_manifest.json` with commit, input hashes, package versions, outputs, warnings, and stability status.
 
+## Legacy-Parity Note
+
+The modular CLI is reproducible and testable, but it is not yet certified as numerically equivalent to the preserved legacy notebook. For strict replication of the original research run, keep the legacy notebook available and document which implementation generated any reported result.
+
+Recommended next validation step:
+
+```bash
+python scripts/run_pipeline.py --config configs/baseline.yaml --smoke
+pytest
+```
+
+Then compare selected modular outputs against legacy notebook outputs once a full legacy-output fixture is available.
