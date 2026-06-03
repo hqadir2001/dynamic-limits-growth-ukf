@@ -1,0 +1,12 @@
+ukf_alpha_variants: [0.0005, 0.001, 0.002]
+ukf_kappa_variants: [0.0, 1.0]
+q_multipliers: [0.5, 1.0, 2.0]
+r_multipliers: [0.5, 1.0, 2.0]
+observation_drop_variants:
+  - []
+  - [vix_obs__sc]
+  - [nfci_obs__sc]
+psd_epsilon_variants: [0.0000000001, 0.000000001, 0.00000001]
+outputs:
+  run_tag_prefix: robustness
+

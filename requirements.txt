@@ -1,7 +1,9 @@
-numpy
-pandas
-matplotlib
-Pillow
-jupyterlab
-ipykernel
-nbformat
+numpy>=1.26,<3
+pandas>=2.1,<3
+matplotlib>=3.8,<4
+Pillow>=10,<12
+jupyterlab>=4,<5
+ipykernel>=6,<8
+nbformat>=5.9,<6
+pytest>=8,<9
+PyYAML>=6,<7

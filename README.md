@@ -1,127 +1,117 @@
 # Dynamic Limits of Growth UKF
 
+[![tests](https://github.com/hqadir2001/dynamic-limits-growth-ukf/actions/workflows/tests.yml/badge.svg)](https://github.com/hqadir2001/dynamic-limits-growth-ukf/actions/workflows/tests.yml)
+
 System-dynamics-informed macro-financial stress analysis using a nonlinear state-space model estimated with an Unscented Kalman Filter on post-2003 U.S. data.
 
-## Overview
+## Abstract
 
-This repository contains the research-code package for a senior project on financial crises, structural imbalances, behavioural complacency, institutional rigidity, and policy cost-deferral. The project develops a Dynamic Limits of Growth framework and operationalizes it through a semi-structural nonlinear state-space model estimated with an Unscented Kalman Filter.
+This repository contains a reproducible research-code package for a senior project on financial crises, structural imbalances, behavioural complacency, institutional rigidity, and policy cost-deferral. The empirical object is a locked quarterly U.S. macro-financial panel covering 2003Q4-2025Q2. The model is calibrated/semi-structural: it filters and smooths latent state paths conditional on the specified model, observables, and noise assumptions.
 
-The empirical object is a locked quarterly U.S. macro-financial panel covering 2003Q4–2025Q2. The model uses 14 observable series, including output, output gap, inflation, unemployment, interest-rate and spread measures, financial-stress measures, public-debt and primary-balance anchors, external-balance anchors, net-foreign-asset anchors, and central-bank balance-sheet measures.
-
-## Motivation
-
-Financial crises are often treated as exogenous shocks or isolated policy failures. This project instead studies how crises can emerge endogenously when a growth regime accumulates structural imbalances, normalizes leverage and risk-taking, and develops institutions that defer rather than realize losses. The goal is to provide an auditable computational framework for tracing those dynamics in post-2003 U.S. macro-financial data.
-
-## Methodology
-
-The workflow is:
-
-1. Load and validate the canonical quarterly data panel.
-2. Enforce period integrity, observable completeness, and identity-anchor discipline.
-3. Lock the measurement object and record hashes/provenance.
-4. Estimate/filter latent states using a nonlinear state-space model and Unscented Kalman Filter.
-5. Produce diagnostics, residual checks, smoothed/filtered states, historical-decomposition outputs, counterfactual policy-path outputs, and robustness artifacts.
-
-Counterfactuals are fixed-shock, within-model scenario comparisons. They should not be interpreted as causal policy effects. Historical decomposition is accounting attribution inside the fitted system, not external causal identification.
-
-## Repository structure
-
-```text
-.
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── .gitignore
-├── GITHUB_UPLOAD_PLAN.md
-├── PROJECT_MANIFEST.csv
-├── data/
-│   ├── README.md
-│   ├── processed/master_panel_canonical.csv
-│   └── sample/master_panel_sample.csv
-├── docs/
-│   ├── figures/dlg_stock_flow_map.pdf
-│   └── paper/senior_project_writeup.pdf
-├── notebooks/
-│   └── 01_research_pipeline.ipynb
-└── results/
-    └── README.md
-```
-
-## Installation
+## Quickstart
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-On Windows:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-## Usage
-
-Set the project root and run the notebook:
-
-```bash
-export SPROJ_ROOT=/path/to/dynamic-limits-growth-ukf
-jupyter lab notebooks/01_research_pipeline.ipynb
+python scripts/run_smoke_test.py
 ```
 
 On Windows PowerShell:
 
 ```powershell
-$env:SPROJ_ROOT = "C:\path\to\dynamic-limits-growth-ukf"
-jupyter lab notebooks/01_research_pipeline.ipynb
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python scripts\run_smoke_test.py
 ```
 
-The notebook expects the canonical processed panel at:
+## Installation
+
+Target Python version: 3.11.
+
+Pip:
+
+```bash
+pip install -r requirements.txt
+```
+
+Conda:
+
+```bash
+conda env create -f environment.yml
+conda activate dynamic-limits-growth-ukf
+```
+
+## Run Commands
+
+Smoke pipeline:
+
+```bash
+python scripts/run_pipeline.py --config configs/baseline.yaml --smoke
+```
+
+Full baseline pipeline:
+
+```bash
+python scripts/run_pipeline.py --config configs/baseline.yaml
+```
+
+Optional flags:
 
 ```text
-data/processed/master_panel_canonical.csv
+--project-root
+--data-path
+--results-dir
+--refresh-freeze
+--run-robustness
+--run-counterfactuals
 ```
 
-Generated model outputs are written under:
+`FREEZE_REFRESH_MODE` defaults to false. Refreshing freeze-style artifacts requires explicit CLI/config opt-in.
+
+## Expected Outputs
+
+| output | description |
+|---|---|
+| `filtered_states_<tag>.csv` | Forward UKF state estimates |
+| `smoothed_states_<tag>.csv` | RTS-style backward-pass state estimates |
+| `state_covariance_diag_<tag>.csv` | Smoothed covariance diagonal |
+| `fitted_values_<tag>.csv` | Measurement values implied by filtered states |
+| `residuals_<tag>.csv` | Observed minus fitted values |
+| `residual_summary_<tag>.csv` | Residual mean, dispersion, RMSE, and max absolute residual |
+| `stability_report_<tag>.json` | Finiteness, likelihood, PSD repair, and smoother metadata |
+| `run_manifest.json` | Commit, input hashes, config hash, package versions, output paths, warnings |
+
+Generated outputs are written under `results/` and are excluded from Git by default.
+
+## Repository Structure
 
 ```text
-results/
+src/dlg_ukf/              Modular package code
+scripts/                  CLI entry points
+configs/                  Human-readable YAML configs
+tests/                    Pytest coverage
+data/processed/           Committed canonical processed panel
+data/sample/              Small sample panel for smoke checks
+docs/                     Model, reproducibility, limitations, outputs, counterfactuals
+notebooks/                Clean reproduction notebook
+notebooks/legacy/         Preserved original research notebook
 ```
 
-Generated outputs are excluded from Git by default. Commit only selected publication-facing figures or compact summary tables.
+## Data Note
 
-## Data
+The repository preserves the processed canonical panel and sample panel. Raw/private/intermediate data are intentionally excluded. The data dictionary is scaffolded and uses `TODO_VERIFY` for unknown source, unit, description, and transformation metadata rather than fabricating provenance.
 
-The repository includes a cleaned processed panel and a small sample panel for inspection or smoke testing. Raw data downloads and large intermediate source files are not committed by default. The underlying series are public macro-financial data from sources such as FRED, BEA, BLS, IMF, and related official/public datasets. See `data/README.md` for details, caveats, required observables, identity anchors, and redistribution notes.
+## Limitations
 
-## Key outputs
+This is research code, not a production forecasting system. UKF filtering is not causal identification. Counterfactuals are fixed-shock within-model comparisons, not causal policy effects. Historical decomposition is model-accounting attribution, not external causal attribution. Results depend on data construction, observables, model specification, and noise assumptions.
 
-The pipeline can produce:
+## Citation
 
-- locked evaluation panel
-- canonical specs and provenance files
-- filtered and smoothed state estimates
-- fitted values and residuals
-- innovation diagnostics
-- measurement-consistency residuals
-- historical decomposition tables
-- fixed-shock counterfactual scenario paths
-- robustness summaries
-- paper-facing figures and tables
-
-Generated outputs are intentionally excluded from Git by default. Promote only selected publication-facing figures or compact tables when needed.
-
-## Limitations and interpretation warning
-
-This is a research-code repository, not a production forecasting package. The model is semi-structural and model-conditional. It does not provide causal identification, policy-invariant structural parameters, or proof that any historical crisis was inevitable. Results depend on the locked data object, selected observables, model specification, UKF assumptions, and fixed-shock counterfactual discipline.
-
-## Author
-
-Husnain Qadir
+See `CITATION.cff`.
 
 ## License
 
 Code is released under the MIT License. Paper text, figures, and data-source materials may be subject to separate source or institutional restrictions.
+

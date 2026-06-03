@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it using this metadata."
+title: "Dynamic Limits of Growth UKF"
+authors:
+  - family-names: Qadir
+    given-names: Husnain
+repository-code: "https://github.com/hqadir2001/dynamic-limits-growth-ukf"
+license: MIT
+version: "0.1.0"
+

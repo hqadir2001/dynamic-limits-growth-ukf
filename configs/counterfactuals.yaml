@@ -1,0 +1,19 @@
+counterfactuals:
+  scenario_id: lambda_grid
+  window:
+    start: 2020Q2
+    end: 2021Q4
+  lambda_grid: [1.0, 0.75, 0.5, 0.0]
+  baseline:
+    description: Observed fixed-shock baseline path.
+  scenarios:
+    - id: lambda_075
+      lambda: 0.75
+    - id: lambda_050
+      lambda: 0.5
+    - id: lambda_000
+      lambda: 0.0
+  warning_text: "Fixed-shock within-model comparison; not a causal policy effect."
+outputs:
+  run_tag_prefix: counterfactual
+

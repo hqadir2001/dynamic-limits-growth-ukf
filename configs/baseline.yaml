@@ -1,0 +1,42 @@
+evaluation_window:
+  start: 2003Q4
+  end: 2025Q2
+required_observables:
+  - logY_obs__sc
+  - y_gap_obs__sc
+  - pi_obs__sc
+  - U_obs__sc
+  - rS_obs__sc
+  - term_obs__sc
+  - hy_oas_obs__sc
+  - nfci_obs__sc
+  - vix_obs__sc
+  - debt_obs__sc
+  - pb_obs__sc
+  - nxY_obs__sc
+  - nfa_y_obs__sc
+  - cb_assets_obs__sc
+identity_anchors:
+  debt_obs__sc: D_G_Y
+  pb_obs__sc: PB_GDP
+  nxY_obs__sc: NX_Y
+  nfa_y_obs__sc: NFA_to_Y
+  cb_assets_obs__sc: cb_assets_Y
+ukf:
+  alpha: 0.001
+  beta: 2.0
+  kappa: 0.0
+  q_scale: 0.02
+  r_scale: 0.05
+  p0_scale: 0.2
+  psd_epsilon: 0.000000001
+  store_full_covariance: true
+smoother:
+  enabled: true
+  type: additive-noise-ukf-rts
+outputs:
+  run_tag: baseline
+  write_full_covariance: false
+freeze:
+  FREEZE_REFRESH_MODE: false
+

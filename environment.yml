@@ -1,0 +1,15 @@
+name: dynamic-limits-growth-ukf
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - matplotlib
+  - pillow
+  - jupyterlab
+  - ipykernel
+  - nbformat
+  - pytest
+  - pyyaml
+
